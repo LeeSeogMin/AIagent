@@ -1,4 +1,3 @@
-import anthropic
 from langchain.prompts import PromptTemplate
 import json
 from typing import List, Dict
@@ -9,6 +8,19 @@ class RelationExtractor:
         self.knowledge_manager = knowledge_manager
         
     def extract_relations(self, text: str, entities: List[Dict], ontology: Dict) -> List[Dict]:
+        def normalize_relation(relation: str) -> str:
+            """관계 타입 정규화
+            1. 동사 기본형 추출
+            2. 불필요한 조사/어미 제거
+            3. 유사 표현 통일
+            """
+            relation = relation.strip()
+            # 기본적인 정규화
+            relation = relation.replace('을', '').replace('를', '')
+            relation = relation.replace('하다', '')
+            relation = relation.replace('_', ' ')
+            return relation.strip()
+        
         # 긴 텍스트를 더 작은 청크로 분할
         chunks = self._split_text(text, max_length=1000)
         all_relations = []
@@ -36,14 +48,15 @@ class RelationExtractor:
                 """
             )
             
-            response = self.knowledge_manager.client.messages.create(
-                model="claude-3-5-sonnet-20241022",
-                max_tokens=2000,
+            response = self.knowledge_manager.client.chat.completions.create(
+                model="llama-3.3-70b-versatile",  # Groq의 모델명으로 변경
                 messages=[
                     {"role": "user", "content": prompt.format(text=chunk, entities=entities, ontology=ontology)}
                 ]
             )
-            relations = self._parse_json_response(response.content)
+            relations = self._parse_json_response(response.choices[0].message.content)
+            for relation in relations:
+                relation['relation'] = normalize_relation(relation['relation'])
             all_relations.extend(relations)
         
         return all_relations

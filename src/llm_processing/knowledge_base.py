@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from typing import List, Dict, Optional
-import anthropic
+from groq import Groq
 
 @dataclass
 class OntologyStructure:
@@ -15,8 +15,8 @@ class KnowledgeGraph:
     ontology: OntologyStructure
 
 class KnowledgeBaseManager:
-    def __init__(self, anthropic_api_key: str):
-        self.client = anthropic.Client(api_key=anthropic_api_key)
+    def __init__(self, groq_api_key: str):
+        self.client = Groq(api_key=groq_api_key)
         
     def initialize_expert_knowledge(self) -> str:
         return """당신은 온톨로지와 지식 그래프 전문가입니다.

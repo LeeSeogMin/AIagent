@@ -1,4 +1,3 @@
-import anthropic
 import json
 from langchain.prompts import PromptTemplate
 from typing import List, Dict
@@ -28,14 +27,13 @@ class EntityExtractor:
 }}"""
         )
         
-        response = self.knowledge_manager.client.messages.create(
-            model="claude-3-opus-20240229",
-            max_tokens=2000,
+        response = self.knowledge_manager.client.chat.completions.create(
+            model="mixtral-8x7b-32768",
             messages=[
                 {"role": "user", "content": prompt.format(text=text)}
             ]
         )
-        return self._parse_json_response(response.content)
+        return self._parse_json_response(response.choices[0].message.content)
         
     def extract_entities(self, text: str, ontology: Dict) -> List[Dict]:
         prompt = PromptTemplate(
@@ -62,18 +60,19 @@ class EntityExtractor:
 }}"""
         )
         
-        response = self.knowledge_manager.client.messages.create(
-            model="claude-3-opus-20240229",
-            max_tokens=2000,
+        response = self.knowledge_manager.client.chat.completions.create(
+            model="mixtral-8x7b-32768",
             messages=[
                 {"role": "user", "content": prompt.format(text=text, ontology=ontology)}
             ]
         )
-        return self._parse_json_response(response.content)
+        return self._parse_json_response(response.choices[0].message.content)
 
     def _parse_json_response(self, response: str) -> Dict:
         """LLM 응답을 파싱하여 JSON으로 변환"""
         try:
+            # 이스케이프 문자 처리
+            response = response.replace('\\_', '_')
             # TextBlock 리스트인 경우 첫 번째 TextBlock의 text 속성을 사용
             if isinstance(response, list) and hasattr(response[0], 'text'):
                 response = response[0].text

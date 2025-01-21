@@ -25,6 +25,9 @@ class Neo4jClient:
 
     def create_node(self, label, properties):
         try:
+            # 엔터티 이름 정규화
+            properties["name"] = self._normalize_entity_name(properties["name"])
+            
             # 레이블의 공백을 언더스코어로 변경
             safe_label = self._sanitize_label(label)
             
@@ -38,6 +41,17 @@ class Neo4jClient:
         except Exception as e:
             print(f"노드 생성 실패: {str(e)}")
             raise
+
+    def _normalize_entity_name(self, name: str) -> str:
+        """엔터티 이름 정규화
+        1. 공백 표준화
+        2. 특수문자 처리
+        3. 대소문자 통일
+        """
+        normalized = name.strip()
+        normalized = normalized.replace('_', ' ')
+        normalized = ' '.join(normalized.split())  # 연속된 공백 제거
+        return normalized
 
     def create_relationship(self, start_label, start_node_name, end_label, end_node_name, relation_type):
         try:

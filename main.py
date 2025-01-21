@@ -11,7 +11,7 @@ load_dotenv()
 NEO4J_URI = os.getenv("NEO4J_URI")
 NEO4J_USER = os.getenv("NEO4J_USER")
 NEO4J_PASSWORD = os.getenv("NEO4J_PASSWORD")
-ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 
 def main():
     # 연결 정보 출력하여 확인
@@ -20,7 +20,7 @@ def main():
     print(f"NEO4J_PASSWORD: {NEO4J_PASSWORD}")
     
     # 초기화
-    knowledge_manager = KnowledgeBaseManager(ANTHROPIC_API_KEY)
+    knowledge_manager = KnowledgeBaseManager(GROQ_API_KEY)
     entity_extractor = EntityExtractor(knowledge_manager)
     relation_extractor = RelationExtractor(knowledge_manager)
     neo4j_client = Neo4jClient(NEO4J_URI, NEO4J_USER, NEO4J_PASSWORD)
