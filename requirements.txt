@@ -1,0 +1,9 @@
+langchain
+langchain-openai
+langchain-community
+neo4j
+python-dotenv
+konlpy
+git+https://github.com/haven-jeon/PyKoSpacing.git
+nodemon
+anthropic
